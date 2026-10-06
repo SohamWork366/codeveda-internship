@@ -1,3 +1,10 @@
+from pathlib import Path
+
+
+# Always use the folder where this Python file is located
+BASE_DIR = Path(__file__).resolve().parent
+
+
 def encrypt(text, shift):
     result = ""
 
@@ -16,43 +23,76 @@ def decrypt(text, shift):
 
 
 def read_file(filename):
-    with open(filename, "r") as file:
+    with open(filename, "r", encoding="utf-8") as file:
         return file.read()
 
 
 def write_file(filename, text):
-    with open(filename, "w") as file:
+    with open(filename, "w", encoding="utf-8") as file:
         file.write(text)
 
 
-filename = input("Enter the file name: ")
-choice = input("Do you want to encrypt or decrypt? ").lower()
+def main():
 
-shift = 3
+    print("=== File Encryption / Decryption ===")
+    print("Files are located in:", BASE_DIR)
+    print()
 
-try:
+    filename = input("Enter the file name (example: message.txt): ").strip()
+    choice = input("Do you want to encrypt or decrypt? ").strip().lower()
+
+    shift = 3
+
+    # Look for the file inside the same folder as this program
+    input_file = BASE_DIR / filename
+
+    # Check if the file exists
+    if not input_file.exists():
+        print()
+        print("File not found.")
+        print("Please make sure the file is inside the 'advanced' folder.")
+        print()
+        print("Available files:")
+
+        files = list(BASE_DIR.iterdir())
+
+        for file in files:
+            if file.is_file():
+                print(" -", file.name)
+
+        return
+
     if choice == "encrypt":
-        text = read_file(filename)
+
+        text = read_file(input_file)
         encrypted = encrypt(text, shift)
 
-        output_file = "encrypted_" + filename
+        output_file = BASE_DIR / ("encrypted_" + input_file.name)
+
         write_file(output_file, encrypted)
 
+        print()
         print("File encrypted successfully!")
-        print("Saved as:", output_file)
+        print("Saved as:", output_file.name)
 
     elif choice == "decrypt":
-        text = read_file(filename)
+
+        text = read_file(input_file)
         decrypted = decrypt(text, shift)
 
-        output_file = "decrypted_" + filename
+        output_file = BASE_DIR / ("decrypted_" + input_file.name)
+
         write_file(output_file, decrypted)
 
+        print()
         print("File decrypted successfully!")
-        print("Saved as:", output_file)
+        print("Saved as:", output_file.name)
 
     else:
-        print("Invalid choice. Please enter encrypt or decrypt.")
+        print()
+        print("Invalid choice.")
+        print("Please enter 'encrypt' or 'decrypt'.")
 
-except FileNotFoundError:
-    print("Error: File not found. Please check the file name.")
+
+if __name__ == "__main__":
+    main()
